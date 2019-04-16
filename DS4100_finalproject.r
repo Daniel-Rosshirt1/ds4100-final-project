@@ -36,6 +36,8 @@ df_list
 
 df_catchshoot <- lapply("http://stats.nba.com/js/data/sportvu/catchShootData.js",readIt)
 df_drives <- lapply("http://stats.nba.com/js/data/sportvu/drivesData.js", readIt)
+df_pullup <- lapply("http://stats.nba.com/js/data/sportvu/pullUpShootData.js", readIt)
+str(df_drives)
 
 web_page <- readLines("http://stats.nba.com/js/data/sportvu/pullUpShootData.js")
 x1 <- gsub("[\\{\\}\\]]", "", web_page, perl=TRUE)
@@ -46,118 +48,65 @@ nba<-read.table(textConnection(x4), header=T, sep=",", skip=2, stringsAsFactors=
 nba
 
 
+group_by(df_pullup, TEAM_ABBREVIATION)
 
 
-
-
-
-
-
-################################################### TEAMS DATA ##################################################################
-## WEB SCRAPPING WITH RVEST TO PULL THE STANDINGS DATA
+################################web scrapping##############################################
 library(rvest)
+url2015 = "https://www.basketball-reference.com/leagues/NBA_2015_standings.html"
+url2014 = "https://www.basketball-reference.com/leagues/NBA_2014_standings.html"
+url2016 = "https://www.basketball-reference.com/leagues/NBA_2016_standings.html"
+url2017 = "https://www.basketball-reference.com/leagues/NBA_2017_standings.html"
+url2018 = "https://www.basketball-reference.com/leagues/NBA_2018_standings.html"
+url2019 = "https://www.basketball-reference.com/leagues/NBA_2019_standings.html"
 
-page <- read_html("https://www.basketball-reference.com/leagues/NBA_2019_standings.html?fbclid=IwAR0xnccmjlJRX5qZBCeSbIF_ubY_PlMo9kMmzKwEvMnjoX4mq5UPA0Tvi_k#all_confs_standings_E")
+scrapping_standings <- function(url) {
+  page=read_html(url)
+  easternteams <- page %>%
+    html_nodes(".full_table .left") %>%
+    html_text()
+  easternteams
 
-cast <- page %>%
-  html_nodes("#fs-sidewall-right-container , .center , .left , .right") %>%
-  html_text()
-cast
+  easternW <- page %>%
+    html_nodes(".right:nth-child(2)") %>%
+    html_text()
+  length(easternW)
 
+  easternL <- page %>%
+    html_nodes(".right:nth-child(3)") %>%
+    html_text()
+  length(easternL)
 
-easternteams <- page %>%
-  html_nodes("#fs-sidewall-right-container , #confs_standings_E .left") %>%
-  html_text()
-easternteams
-easternteams
+  
+  easternWL <- page %>% 
+    html_nodes(".full_table .right:nth-child(4)") %>%
+    html_text()
+  length(easternWL)
+  
+  easternGB <- page %>%
+    html_nodes(".full_table .right:nth-child(5)") %>%
+    html_text()
+  
+  length(easternGB)
 
-easternW <- page %>%
-  html_nodes("#fs-sidewall-right-container , #confs_standings_E .left+ .right , #confs_standings_E .left+ .center") %>%
-  html_text()
-easternW
-easternW
+  easternPSG<-page %>%
+    html_nodes(".full_table .right:nth-child(6)") %>%
+    html_text()
+  length(easternPSG)
+  
+  easternPAG <- page %>%
+    html_nodes(".full_table .right:nth-child(7)") %>%
+    html_text()
+  length(easternPAG)
 
-easternL <- page %>%
-  html_nodes("#fs-sidewall-right-container , #confs_standings_E .right:nth-child(3) , #confs_standings_E .center+ .center") %>%
-  html_text()
-easternL
-easternL
+  easternSRS <- page %>%
+    html_nodes(".right:nth-child(8)") %>%
+    html_text()
+  length(easternSRS)
 
-
-easternWL <- page %>% 
-  html_nodes("#fs-sidewall-right-container , #confs_standings_E .right:nth-child(4)") %>%
-  html_text()
-easternWL 
-easternWL
-length(easternWL)
-
-
-easternGB <- page %>%
-  html_nodes("#fs-sidewall-right-container , #confs_standings_E .right:nth-child(5)") %>%
-  html_text()
-easternGB
-easternGB
-length(easternGB)
-
-easternPSG<-page %>%
-  html_nodes("#confs_standings_E .right:nth-child(6)") %>%
-  html_text()
-easternPSG
-easternPSG
-
-
-easternPAG <- page %>%
-  html_nodes("#confs_standings_E .right:nth-child(7)") %>%
-  html_text()
-easternPAG
-easternPAG
-
-easternSRS <- page %>%
-  html_nodes("#confs_standings_E .right:nth-child(7)") %>%
-  html_text()
-easternSRS
-easternSRS
-
-nba_info <- data.frame(easternteams, easternW, easternL, easternGB, easternPSG, easternPAG, easternSRS)
-length_adress <- length(nba_info)
-westernNames <- page %>%
-  html_nodes("#confs_standings_W .full_table .left") %>%
-  html_text()
-westernNames
-
-
-westernW <- page %>%
-  html_nodes("#confs_standings_W .left+ .right") %>%
-  html_text()
-westernW
-
-westernL <- page %>%
-  html_nodes("#confs_standings_W .right:nth-child(3)") %>%
-  html_text()
-westernL
-
-westernGB <- page %>%
-  html_nodes("#confs_standings_W .full_table .right:nth-child(4)")%>%
-  html_text()
-westernGB
-
-westernPSG <- page %>%
-  html_nodes("#confs_standings_W .full_table .right:nth-child(6)")%>%
-  html_text()
-westernPAG
-
-westernPAG <- page %>%
-  html_nodes("#confs_standings_W .full_table .right:nth-child(7)")%>%
-  html_text()
-westernPAG
-
-
-westernSRS <- page %>%
-  html_nodes("#confs_standings_W .right:nth-child(8)")%>%
-  html_text()
-westernPAG
-
-nba_info <- data.frame(westernNames, westernW, westernL, westernGB, westernPSG, westernPAG, westernSRS)
+  nba_info_e <- data.frame(easternteams, easternW, easternL, easternWL, easternGB, easternPSG, easternPAG, easternSRS)
+  return(nba_info_e)
+}
 
 
 
@@ -169,31 +118,33 @@ nba_info <- data.frame(westernNames, westernW, westernL, westernGB, westernPSG, 
 
 
 
+library(ggplot2)
 
 
+ggplot(nba_info_w, aes(x=westernNames, y=westernW, fill=westernNames)) +
+  geom_bar(stat="identity")+theme_minimal()
+
+ggplot(nba_info_e, aes(x=easternteams, y=easternW, fill=easternteams)) +
+  geom_bar(stat="identity")+theme_minimal()
 
 
+ggplot(nba_info_w, aes(x=westernNames, y=westernPAG, fill=westernNames)) +
+  geom_bar(stat="identity")+theme_minimal()
+
+ggplot(nba_info_e, aes(x=easternteams, y=easternPAG, fill=easternteams)) +
+  geom_bar(stat="identity")+theme_minimal()
 
 
+ggplot(nba_info_w, aes(x=westernNames, y=westernPSG, fill=westernNames)) +
+  geom_bar(stat="identity")+theme_minimal()
 
+ggplot(nba_info_e, aes(x=easternteams, y=easternPSG, fill=easternteams)) +
+  geom_bar(stat="identity")+theme_minimal()
 
+ggplot(nba_info_w, aes(x=westernNames, y=westernSRS, fill=westernNames)) +
+  geom_bar(stat="identity")+theme_minimal()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ggplot(nba_info_e, aes(x=easternteams, y=easternSRS, fill=easternteams)) +
+  geom_bar(stat="identity")+theme_minimal()
 
 

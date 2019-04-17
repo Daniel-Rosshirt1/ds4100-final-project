@@ -108,16 +108,39 @@ scrapping_standings <- function(url) {
   return(nba_info_e)
 }
 
+df2014 <- scrapping_standings(url2014)
+str(df2014)
+
+# converting into numeric
+df2014$easternW <- as.numeric(df2014$easternW)
+df2014$easternPAG <- as.numeric(df2014$easternPAG)
+df2014$easternPSG <- as.numeric(df2014$easternPSG)
+# ranking by columns
+rankedByW <- df2014 %>% arrange(desc(easternW))
+rankedByPAG <- df2014 %>% arrange(easternPAG)
+
+# Defense Team Analysis & dividing into tiers
+rankedByPAGTier5 <- rankedByPAG[1:6,]
+rankedByPAGTier4 <- rankedByPAG[7:12,]
+rankedByPAGTier3 <- rankedByPAG[13:18,]
+rankedByPAGTier2 <- rankedByPAG[19:24,]
+rankedByPAGTier1 <- rankedByPAG[25:30,]
+rankedByPAGTier4
+
+# Offense Team Analysis & dividing into tiers
+rankedByPSG <- df2014 %>% arrange(desc(easternPSG)) # points per game
+rankedByPSGTier5 <- rankedByPSG[1:6,]
+rankedByPSGTier4 <- rankedByPSG[7:12,]
+rankedByPSGTier3 <- rankedByPSG[13:18,]
+rankedByPSGTier2 <- rankedByPSG[19:24,]
+rankedByPSGTier1 <- rankedByPSG[25:30,]
+rankedByPSGTier5
+str(df2014)
 
 
 
 
-
-
-
-
-
-
+# ggplot2 plotting
 library(ggplot2)
 
 
